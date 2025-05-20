@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
+<!-- ======= Head ======= -->
+<div th:replace="~{common/shoulder_fragment::head(title = 'SNSサイト - フレンド')}"></div>
+
+<body>
+
+	<!-- ======= Header ======= -->
+	<div th:replace="~{common/shoulder_fragment::header}"></div>
+
+	<!-- ======= Sidebar ======= -->
+	<div th:replace="~{common/shoulder_fragment::sidebar}"></div>
+
+	<main id="main" class="main">
+
+		<div class="pagetitle">
+			<h1>フレンド</h1>
+		</div><!-- End Page Title -->
+
+		<section class="section dashboard">
+			<div class="row">
+
+				<div class="col-lg-12">
+
+					<!-- News & Updates Traffic -->
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title">フレンドリスト</h5>
+
+							<!-- Table with stripped rows -->
+							<table class="table table-striped">
+								<thead>
+									<tr>
+										<th scope="col">#</th>
+										<th scope="col">名前</th>
+										<th scope="col">プロフィール</th>
+										<th scope="col">承認ステータス</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr th:each="user : ${userList}">
+										<th scope="row" style="width: 10%;">
+											<img th:src="${user != null and user.profileImageUrl != null} ?
+								                         ${@storageService.getDataUri(user.profileImageUrl)} :
+								                         '/assets/img/profile-dummy.png'" alt="" style="width: 80px;">
+										</th>
+										<td style="width: 10%;">
+											<a th:href="@{/profile/view/{id}(id=${user.id})}"
+												th:text="${user.name}">ユーザー名</a>
+										</td>
+										<td style="width: 65%; white-space: normal; line-height: 1.5;">
+											<span class="pre-wrap" th:utext="${@stringUtil.nl2br(user.profile)}">プロフィール</span>
+										</td>
+										<td style="width: 15%;">
+											<div th:switch="${user.approvalStatus}">
+												<!-- 承認済み -->
+												<div th:case="1">
+													<form th:action="@{/friend/remove}" method="post"
+														style="display:inline;">
+														<input type="hidden" name="usersId"
+															th:value="${currentUserId}" />
+														<input type="hidden" name="friendUsersId"
+															th:value="${user.id}" />
+														<button type="submit"
+															class="btn btn-warning rounded-pill">友達解除</button>
+													</form>
+												</div>
+												
+
+												<!-- 相手からの申請（承認 / 却下） -->
+												<div th:case="2">
+													<form
+														th:action="@{/friend/approve/{requestId}(requestId=${user.requestId})}"
+														method="post" style="display:inline;">
+														<input type="hidden" name="usersId"
+															th:value="${currentUserId}" />
+														<button type="submit"
+															class="btn btn-primary rounded-pill">承認</button>
+													</form>
+													<form
+														th:action="@{/friend/reject/{requestId}(requestId=${user.requestId})}"
+														method="post" style="display:inline;">
+														<input type="hidden" name="usersId"
+															th:value="${currentUserId}" />
+														<button type="submit"
+															class="btn btn-danger rounded-pill">却下</button>
+													</form>
+												</div>
+
+												<!-- 自分から申請済み -->
+												<span th:case="0" class="btn btn-secondary rounded-pill">申請済み</span>
+
+												<!-- 申請可能 -->
+												<form th:case="3" th:action="@{/friend/sendRequest}" method="post"
+													style="display:inline;">
+													<input type="hidden" name="usersId" th:value="${currentUserId}" />
+													<input type="hidden" name="friendUsersId" th:value="${user.id}" />
+													<button type="submit"
+														class="btn btn-outline-primary rounded-pill">友達申請</button>
+												</form>
+
+												<!-- 却下済みなど（任意） -->
+												<span th:case="4" class="text-muted">申請却下済み</span>
+
+												<!-- 想定外 -->
+												<span th:case="*" class="text-muted">状態不明</span>
+											</div>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							<!-- End Table with stripped rows -->
+
+
+
+						</div>
+					</div>
+				</div><!-- End Right side columns -->
+
+			</div>
+		</section>
+
+	</main><!-- End #main -->
+
+	<!-- ======= Footer ======= -->
+	<div th:replace="~{common/shoulder_fragment::footer}"></div>
+
+</body>
+
+</html>
