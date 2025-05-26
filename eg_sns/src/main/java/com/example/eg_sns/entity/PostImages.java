@@ -48,5 +48,5 @@ public class PostImages extends EntityBase {
 	/** ポスト情報とのJOIN */
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "posts_id", referencedColumnName = "id", insertable = false, updatable = false)
-	private Topics topics;
+	private Posts posts;
 }
