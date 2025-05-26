@@ -22,6 +22,14 @@
                     <h5 class="card-title text-center pb-0 fs-4">アカウントを作成します。</h5>
                     <p class="text-center small">個人情報を入力してアカウントを作成してください。</p>
                   </div>
+                  
+                  <div th:if='${validationErrors != null}' class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <div th:each="error : ${validationErrors.getAllErrors()}">
+                      <i class="bi bi-exclamation-octagon me-1"></i>
+                      <span th:text="${error.getDefaultMessage()}">エラーメッセージ</span>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
 
                   <form class="row g-3 needs-validation" th:action="@{/account/regist}" th:object="${requestAccount}" method="POST" novalidate>
                     <div class="col-12">
