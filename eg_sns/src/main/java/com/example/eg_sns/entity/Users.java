@@ -1,10 +1,17 @@
 package com.example.eg_sns.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,7 +19,7 @@ import lombok.EqualsAndHashCode;
 /**
  * ユーザーEntityクラス。
  *
- * @author tomo-sato
+ * @author chink
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -49,4 +56,9 @@ public class Users extends EntityBase {
 	/** プロフィール自己紹介文 */
 	@Column(name = "profile", columnDefinition = "TEXT", nullable = true)
 	private String profile;
+	
+	/** 投稿情報とのJOIN */
+	@OneToMany(mappedBy = "users", fetch = FetchType.LAZY)
+	@JsonManagedReference  // 循環参照を防ぐ
+    private List<Posts> postsList = new ArrayList<>();
 }
