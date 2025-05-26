@@ -1,35 +1,37 @@
 package com.example.eg_sns.repository;
 
 import java.util.List;
+
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.eg_sns.entity.Comments;
+import com.example.eg_sns.entity.PostComments;
 
 /**
- * コメント関連リポジトリインターフェース。
+ * 投稿コメント関連リポジトリインターフェース。
  *
- * @author tomo-sato
+ * @author chink
  */
-public interface CommentsRepository extends PagingAndSortingRepository<Comments, Long>, CrudRepository<Comments, Long> {
-
+public interface PostCommentsRepository extends PagingAndSortingRepository<PostComments, Long>, CrudRepository<PostComments, Long> {
 	/**
 	 * コメントの削除処理を行う。
 	 * ※物理削除（データが完全に消える。）
 	 *
 	 * @param id コメントID
 	 * @param usersId ユーザーID
-	 * @param topicsId トピックID
+	 * @param postsId 投稿ID
 	 */
 	@Transactional
-	void deleteByIdAndUsersIdAndTopicsId(Long id, Long usersId, Long topicsId);
+	void deleteByIdAndUsersIdAndPostsId(Long id, Long usersId, Long postsId);
 	
 	/**
 	 * 指定されたトピックIDに紐づくコメント一覧を取得
 	 *
-	 * @param topicsId トピックID
+	 * @param postsId 投稿ID
 	 * @return コメントリスト
 	 */
-	List<Comments> findByTopicsId(Long topicsId);
+	List<PostComments> findByPostsId(Long postsId);
+
+
 }
