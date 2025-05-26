@@ -22,9 +22,16 @@
                     <h5 class="card-title text-center pb-0 fs-4">SNSへようこそ。<br>ログインしてください。</h5>
                     <p class="text-center small">ログインIDとパスワードを入力してください。</p>
                   </div>
+                  
+                  <div th:if='${validationErrors != null}' class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <div th:each="error : ${validationErrors.getAllErrors()}">
+                      <i class="bi bi-exclamation-octagon me-1"></i>
+                      <span th:text="${error.getDefaultMessage()}">エラーメッセージ</span>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
 
                   <form class="row g-3 needs-validation" th:action="@{/login}" method="post" th:object="${requestLogin}" novalidate>
-
                     <div class="col-12">
                       <label for="yourUsername" class="form-label">ログインID</label>
                       <div class="input-group has-validation">
