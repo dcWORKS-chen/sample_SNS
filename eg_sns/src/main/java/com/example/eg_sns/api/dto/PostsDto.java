@@ -2,17 +2,15 @@ package com.example.eg_sns.api.dto;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
-import com.example.eg_sns.entity.PostComments;
-import com.example.eg_sns.entity.PostImages;
 import com.example.eg_sns.entity.Posts;
+import com.example.eg_sns.entity.Users;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 
 /**
  * 投稿DTOクラス
@@ -46,59 +44,32 @@ public class PostsDto {
 	
 	/** ユーザーアイコン */
 	private String userIconUri;
-
-	/** 投稿画像 */
-	private List<String> imageUrls;
-
-	/** 投稿コメント */
-	private List<CommentDto> comments;
-
-	// 手動マッピング
-	public PostDto(Posts post) {
-        this.id = post.getId();
-        this.title = post.getTitle();
-        this.body = post.getBody();
-        this.created = post.getCreated();
-        this.formatedCreated = formatDate(post.getCreated());
-
-        if (post.getUsers() != null) {
-            this.userId = post.getUsers().getId();
-            this.userName = post.getUsers().getName();
-            this.userIconUri = post.getUsers().getIconUri();
-        }
-
-        this.imageUrls = post.getPostImagesList().stream()
-                .map(PostImages::getImageUrl)
-                .collect(Collectors.toList());
-
-        this.comments = post.getPostCommentsList().stream()
-                .map(CommentDto::new)
-                .collect(Collectors.toList());
-    }
 	
-	private String formatDate(Date date) {
-        if (date == null) return null;
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        return sdf.format(date);
-    }
+	public String getFormatedCreated() {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		this.formatedCreated = sdf.format(this.created);
+		return this.formatedCreated;	
+	}
+	
+	// 手動マッピング
+	public PostsDto(Posts posts) {
+		if (posts == null) return;
 
-    @Data
-    public static class CommentDto {
-        private Long id;
-        private String body;
-        private Long userId;
-        private String userName;
-        private String userIconUri;
+		this.id = posts.getId();
+		this.title = posts.getTitle();
+		this.body = posts.getBody();
+		this.created = posts.getCreated();
 
-        public CommentDto(PostComments comment) {
-            this.id = comment.getId();
-            this.body = comment.getBody();
-            if (comment.getUsers() != null) {
-                this.userId = comment.getUsers().getId();
-                this.userName = comment.getUsers().getName();
-                this.userIconUri = comment.getUsers().getIconUri();
-            }
-        }
-    }
+		// formattedCreated を即時に設定
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		this.formatedCreated = this.created != null ? sdf.format(this.created) : null;
 
+		Users user = posts.getUsers();
+		if (user != null) {
+			this.userId = user.getId();
+			this.userName = user.getName();
+			this.userIconUri = user.getIconUri();
+		}
+	}
+	
 }

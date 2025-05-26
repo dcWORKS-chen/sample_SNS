@@ -1,6 +1,7 @@
 package com.example.eg_sns.api;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -42,7 +43,7 @@ public class PostApiController {
 	 * @throws JsonProcessingException
 	 */
 	@GetMapping(value = "/getPosts")
-	public Response getTopics(@RequestParam Long sinceId) throws JsonProcessingException {
+	public Response getPosts(@RequestParam Long sinceId) throws JsonProcessingException {
 		Response response = new Response(0);
 		PageInfo pageInfo = new PageInfo();
 		System.out.println(sinceId);
@@ -62,11 +63,11 @@ public class PostApiController {
 		pageInfo.setHasNext(pager.isHasNextPage());
 		pageInfo.setSinceId(retSinceId);
 
-		// DTOへ手動マッピング
+		// DTOにマッピング。
 		List<PostsDto> data = postsList.stream()
 				.map(PostsDto::new)
-				.toList();
-
+				.collect(Collectors.toList());
+		
 		response.setData(data);
 		response.setPageInfo(pageInfo);
 
