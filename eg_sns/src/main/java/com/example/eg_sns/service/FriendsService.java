@@ -30,7 +30,19 @@ public class FriendsService {
 	 */
 	public List<Friends> findFriendsByUsersId(Long usersId) {
 		log.info("フレンド一覧を取得：usersId={}", usersId);
+		
 		return friendsRepository.findByUsersId(usersId);
+	}
+
+	/**
+	* 自分のユーザーIDとフレンドのユーザーIDによる検索。
+	*
+	* @param usersId 自分のユーザーID
+	* @param friendUsersId 相手のユーザーID
+	* @return フレンド情報
+	*/
+	public Optional<Friends> findByUsersIdAndFriendUsersId(Long usersId, Long friendUsersId) {
+		return friendsRepository.findByUsersIdAndFriendUsersId(usersId, friendUsersId);
 	}
 
 	/**
@@ -55,7 +67,8 @@ public class FriendsService {
 		friend.setApprovalStatus(0);
 
 		friendsRepository.save(friend);
-		return true;  // 申請送信成功
+		
+		return true; // 申請送信成功
 	}
 
 	/**
@@ -66,37 +79,30 @@ public class FriendsService {
 	public void approveFriendRequest(Long requestId) {
 		Friends request = friendsRepository.findById(requestId).orElse(null);
 		if (request != null) {
-            request.setApprovalStatus(1); // 承認
-            friendsRepository.save(request);
-            log.info("フレンドリクエストを承認しました：requestId={}", requestId);
-        } else {
-            log.error("フレンドリクエストが見つかりません：requestId={}", requestId);
-        }
+			request.setApprovalStatus(1); // 承認
+			friendsRepository.save(request);
+			
+			log.info("フレンドリクエストを承認しました：requestId={}", requestId);
+		} else {
+			log.error("フレンドリクエストが見つかりません：requestId={}", requestId);
+		}
 	}
 
 	/**
-	 * フレンドリクエストを拒否または削除する。
+	 * フレンドリクエストを拒否
 	 *
 	 * @param requestId フレンドリクエストのID
 	 */
 	public void rejectFriendRequest(Long requestId) {
 		if (friendsRepository.existsById(requestId)) {
-            friendsRepository.deleteById(requestId);
-            log.info("フレンドリクエストを拒否または削除しました：requestId={}", requestId);
-        } else {
-            log.error("フレンドリクエストが見つかりません：requestId={}", requestId);
-        }
+			friendsRepository.deleteById(requestId);
+			
+			log.info("フレンドリクエストを拒否または削除しました：requestId={}", requestId);
+		} else {
+			log.error("フレンドリクエストが見つかりません：requestId={}", requestId);
+		}
 	}
-	
-	/**
-	 * フレンドの状態確認。
-	 *
-	 * @param requestId フレンドリクエストのID
-	 */
-	public Optional<Friends> findByUsersIdAndFriendUsersId(Long usersId, Long friendUsersId) {
-		return friendsRepository.findByUsersIdAndFriendUsersId(usersId, friendUsersId);
-	}
-	
+
 	/**
 	 * フレンドを解除。
 	 *
@@ -104,13 +110,13 @@ public class FriendsService {
 	 * @param friendUsersId フレンド解除相手のユーザーID
 	 */
 	public void removeFriendship(Long usersId, Long friendUsersId) {
-	    Optional<Friends> existingRequest = findByUsersIdAndFriendUsersId(usersId, friendUsersId);
-	    if (existingRequest.isPresent()) {
-	        friendsRepository.delete(existingRequest.get());
-	    } else {
-	        Optional<Friends> reverseRequest = findByUsersIdAndFriendUsersId(friendUsersId, usersId);
-	        reverseRequest.ifPresent(friendsRepository::delete);
-	    }
+		Optional<Friends> existingRequest = findByUsersIdAndFriendUsersId(usersId, friendUsersId);
+		if (existingRequest.isPresent()) {
+			friendsRepository.delete(existingRequest.get());
+		} else {
+			Optional<Friends> reverseRequest = findByUsersIdAndFriendUsersId(friendUsersId, usersId);
+			reverseRequest.ifPresent(friendsRepository::delete);
+		}
 	}
 
 }

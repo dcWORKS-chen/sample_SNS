@@ -36,9 +36,34 @@ public class Friends extends EntityBase{
     @Column(name = "friend_users_id", nullable = false)
     private Long friendUsersId;
 
-    /** 承認ステータス（例：0 = 未承認, 1 = 承認済み, 2 = 却下） */
+    /** 承認ステータス（0 = 申請中, 1 = 承認済み, 2 = 却下） */
     @Column(name = "approval_status", nullable = false)
     private Integer approvalStatus;
+    
+    // 承認ステータスのeum
+    public enum ApprovalStatus {
+    	//0 = 申請中, 1 = 承認済み, 2 = 却下
+        STATUS_PENDING(0),
+        STATUS_APPROVED(1),
+        STATUS_REJECTED(2);
+
+        private final int value;
+
+        ApprovalStatus(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public static ApprovalStatus fromValue(int value) {
+            for (ApprovalStatus status : values()) {
+                if (status.value == value) return status;
+            }
+            throw new IllegalArgumentException("Unknown value: " + value);
+        }
+    }
 
     /** ユーザー情報とのJOIN（自分） */
     @ManyToOne(fetch = FetchType.LAZY)
