@@ -21,7 +21,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "post_likes")
-public class Likes extends EntityBase{
+public class PostLikes extends EntityBase{
 	/** ID */
 	@Id
 	@Column(name = "id")
@@ -32,9 +32,9 @@ public class Likes extends EntityBase{
 	@Column(name = "users_id", nullable = false)
 	private Long usersId;
 
-	/** トピックID */
+	/** 投稿ID */
 	@Column(name = "posts_id", nullable = false)
-	private Long topicsId;
+	private Long postsId;
 	
 	/** ユーザー情報とのJOIN */
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -44,5 +44,7 @@ public class Likes extends EntityBase{
 	/** ポスト情報とのJOIN */
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "posts_id", referencedColumnName = "id", insertable = false, updatable = false)
-	private Topics topics;
+	private Posts posts;
+
+
 }
