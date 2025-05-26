@@ -19,15 +19,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.thymeleaf.util.StringUtils;
 
 import com.example.eg_sns.core.annotation.LoginCheck;
-import com.example.eg_sns.dto.RequestChangePassword;
 import com.example.eg_sns.dto.RequestModifyAccount;
-import com.example.eg_sns.dto.RequestTopicComment;
+import com.example.eg_sns.dto.RequestModifyPassword;
+import com.example.eg_sns.dto.RequestPostComment;
 import com.example.eg_sns.entity.Friends;
-import com.example.eg_sns.entity.Topics;
+import com.example.eg_sns.entity.Posts;
 import com.example.eg_sns.entity.Users;
 import com.example.eg_sns.service.FriendsService;
+import com.example.eg_sns.service.PostsService;
 import com.example.eg_sns.service.StorageService;
-import com.example.eg_sns.service.TopicsService;
 import com.example.eg_sns.service.UsersService;
 import com.example.eg_sns.util.StringUtil;
 
@@ -44,17 +44,15 @@ import lombok.extern.log4j.Log4j2;
 @RequestMapping("/profile")
 public class ProfileController extends AppController {
 
-	/** ファイルアップロード関連サービスクラス。 */
+	/** サービスクラス。 */
 	@Autowired
 	private StorageService storageService;
 
-	/** ユーザー関連サービスクラス。 */
 	@Autowired
 	private UsersService usersService;
 
-	/** ポスト関連サービスクラス。 */
 	@Autowired
-	private TopicsService topicsService;
+	private PostsService postsService;
 
 	@Autowired
 	private FriendsService friendsService;
@@ -72,17 +70,14 @@ public class ProfileController extends AppController {
 
 		model.addAttribute("requestModifyAccount", getUsers());
 
-		// パスワード変更用フォームオブジェクトも渡す
-		model.addAttribute("requestChangePassword", new RequestChangePassword());
-
 		// 自分の投稿のみを取得して渡す
-		List<Topics> myTopicsList = topicsService.findUserTopics(currentUser.getId());
-		model.addAttribute("myTopicsList", myTopicsList);
+		List<Posts> myPostsList = postsService.findUserPosts(currentUser.getId());
+		model.addAttribute("myPostsList", myPostsList);
 
 		// コメント投稿フォーム用のオブジェクト（バリデーションエラー後も考慮）
-		if (!model.containsAttribute("requestTopicComment")) {
-			model.addAttribute("requestTopicComment", new RequestTopicComment());
-		}
+	    if (!model.containsAttribute("requestPostComment")) {
+	        model.addAttribute("requestPostComment", new RequestPostComment());
+	    }
 
 		return "profile/index";
 	}
@@ -122,33 +117,50 @@ public class ProfileController extends AppController {
 		String friendStatus;
 		Long requestId = null; // リクエストID用変数
 
-	    if (sentRequestOpt.isPresent()) {
-	        Friends request = sentRequestOpt.get();
-	        requestId = request.getId(); // リクエストIDを取得
-	        if (request.getApprovalStatus() == 0) {
-	            friendStatus = "申請済み";
-	        } else if (request.getApprovalStatus() == 1) {
-	            friendStatus = "フレンド";
-	        } else {
-	            friendStatus = "却下";
-	        }
-	    } else if (receivedRequestOpt.isPresent()) {
-	        Friends request = receivedRequestOpt.get();
-	        requestId = request.getId(); // リクエストIDを取得
-	        if (request.getApprovalStatus() == 0) {
-	            friendStatus = "承認待ち"; // ここで「承認」「却下」ボタンを出す想定
-	        } else if (request.getApprovalStatus() == 1) {
-	            friendStatus = "フレンド";
-	        } else {
-	            friendStatus = "却下";
-	        }
-	    } else {
-	        friendStatus = "友達申請";
-	    }
+		if (sentRequestOpt.isPresent()) {
+		    Friends request = sentRequestOpt.get();
+		    requestId = request.getId(); // リクエストIDを取得
+
+		    switch (request.getApprovalStatus()) {
+		        case 0:
+		            friendStatus = "申請済み";
+		            break;
+		        case 1:
+		            friendStatus = "フレンド";
+		            break;
+		        default:
+		            friendStatus = "却下";
+		            break;
+		    }
+		} else if (receivedRequestOpt.isPresent()) {
+		    Friends request = receivedRequestOpt.get();
+		    requestId = request.getId(); // リクエストIDを取得
+
+		    switch (request.getApprovalStatus()) {
+		        case 0:
+		            friendStatus = "承認待ち"; // ここで「承認」「却下」ボタンを出す想定
+		            break;
+		        case 1:
+		            friendStatus = "フレンド";
+		            break;
+		        default:
+		            friendStatus = "却下";
+		            break;
+		    }
+		} else {
+		    friendStatus = "友達申請";
+		}
 
 	    // ユーザー情報・投稿リストをビューに渡す
 	    model.addAttribute("user", targetUser);
-	    model.addAttribute("topicsList", topicsService.findUserTopics(userId));
+		List<Posts> postsList = postsService.findUserPosts(userId);
+		model.addAttribute("postsList", postsList);
+
+		// コメント投稿フォーム用のオブジェクト（バリデーションエラー後も考慮）
+	    if (!model.containsAttribute("requestPostComment")) {
+	        model.addAttribute("requestPostComment", new RequestPostComment());
+	    }
+
 	    model.addAttribute("loginUser", getUsers());
 	    model.addAttribute("friendStatus", friendStatus);
 	    model.addAttribute("requestId", requestId); // リクエストIDをビューに渡す
@@ -231,7 +243,7 @@ public class ProfileController extends AppController {
 	 * @param redirectAttributes リダイレクト時に使用するオブジェクト
 	 */
 	@PostMapping("/change-password")
-	public String changePassword(@Validated @ModelAttribute RequestChangePassword requestChangePassword,
+	public String changePassword(@Validated @ModelAttribute RequestModifyPassword requestModifyPassword,
 			BindingResult result,
 			RedirectAttributes redirectAttributes) {
 
@@ -240,10 +252,10 @@ public class ProfileController extends AppController {
 		// バリデーション。
 		if (result.hasErrors()) {
 			// javascriptのバリデーションを改ざんしてリクエストした場合に通る処理。
-			log.warn("バリデーションエラーが発生しました。：requestChangePassword={}, result={}", requestChangePassword, result);
+			log.warn("バリデーションエラーが発生しました。：requestChangePassword={}, result={}", requestModifyPassword, result);
 
 			redirectAttributes.addFlashAttribute("validationErrors", result);
-			redirectAttributes.addFlashAttribute("requestChangePassword", requestChangePassword);
+			redirectAttributes.addFlashAttribute("requestChangePassword", requestModifyPassword);
 
 			// 入力画面へリダイレクト。
 			return "redirect:/profile";
@@ -253,23 +265,23 @@ public class ProfileController extends AppController {
 		Users users = getUsers();
 
 		// 現在のパスワードチェック
-		if (!requestChangePassword.getCurrentPassword().equals(users.getPassword())) {
+		if (!requestModifyPassword.getCurrentPassword().equals(users.getPassword())) {
 			result.rejectValue("currentPassword", "", "現在のパスワードが正しくありません。");
 			redirectAttributes.addFlashAttribute("validationErrors", result);
-			redirectAttributes.addFlashAttribute("requestChangePassword", requestChangePassword);
+			redirectAttributes.addFlashAttribute("requestChangePassword", requestModifyPassword);
 			return "redirect:/profile";
 		}
 
 		// 新旧パスワードの一致確認
-		if (!requestChangePassword.getNewPassword().equals(requestChangePassword.getConfirmPassword())) {
+		if (!requestModifyPassword.getNewPassword().equals(requestModifyPassword.getConfirmPassword())) {
 			result.rejectValue("confirmPassword", "", "新しいパスワードが一致しません。");
 			redirectAttributes.addFlashAttribute("validationErrors", result);
-			redirectAttributes.addFlashAttribute("requestChangePassword", requestChangePassword);
+			redirectAttributes.addFlashAttribute("requestChangePassword", requestModifyPassword);
 			return "redirect:/profile";
 		}
 
 		// パスワード更新
-		users.setPassword(requestChangePassword.getNewPassword());
+		users.setPassword(requestModifyPassword.getNewPassword());
 		usersService.save(users);
 
 		return "redirect:/profile";

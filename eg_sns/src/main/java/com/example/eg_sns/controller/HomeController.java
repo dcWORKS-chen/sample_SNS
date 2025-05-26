@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.eg_sns.core.annotation.LoginCheck;
-import com.example.eg_sns.dto.RequestTopicComment;
-import com.example.eg_sns.entity.Topics;
-import com.example.eg_sns.service.TopicsService;
+import com.example.eg_sns.dto.RequestPostComment;
+import com.example.eg_sns.entity.Posts;
+import com.example.eg_sns.service.PostsService;
 import com.example.eg_sns.util.AppPageWrapper;
 
 import lombok.extern.log4j.Log4j2;
@@ -31,10 +31,9 @@ import lombok.extern.log4j.Log4j2;
 @Controller
 @RequestMapping("/home")
 public class HomeController {
-
-	/** トピック関連サービスクラス。 */
+	/** サービスクラス。 */
 	@Autowired
-	private TopicsService topicsService;
+	private PostsService postsService;
 
 	/**
 	 * [GET]ホーム画面のアクション。
@@ -50,23 +49,23 @@ public class HomeController {
 		int ipage = NumberUtils.toInt(page, 0);
 
 		// トピック取得する。
-		Page<Topics> pageTopics = topicsService.findAllTopics(ipage);
-		AppPageWrapper<Topics> pager = new AppPageWrapper<Topics>(pageTopics);
+		Page<Posts> pagePosts = postsService.findAllPosts(ipage);
+		AppPageWrapper<Posts> pager = new AppPageWrapper<Posts>(pagePosts);
 		
-		List<Topics> topicsList = pager.getContent();
+		List<Posts> postsList = pager.getContent();
 		Long sinceId = 0L;
-		for (Topics topics : topicsList) {
-			sinceId = (sinceId < topics.getId()) ? topics.getId() : sinceId;
+		for (Posts posts : postsList) {
+			sinceId = (sinceId < posts.getId()) ? posts.getId() : sinceId;
 		}
 		
-		model.addAttribute("topicsList", topicsList);
+		model.addAttribute("postsList", postsList);
 		model.addAttribute("sinceId", sinceId);
 		model.addAttribute("pager", pager);
 		model.addAttribute("isSuccess", BooleanUtils.toBoolean(isSuccess));
 		
 		 // コメント投稿フォーム用のオブジェクト（バリデーションエラー後も考慮）
-	    if (!model.containsAttribute("requestTopicComment")) {
-	        model.addAttribute("requestTopicComment", new RequestTopicComment());
+	    if (!model.containsAttribute("requestPostComment")) {
+	        model.addAttribute("requestPostComment", new RequestPostComment());
 	    }
 
 		return "home/index";
@@ -74,8 +73,8 @@ public class HomeController {
 	
 	@GetMapping("/test/shoulder")
 	public String testShoulder(Model model) {
-		Page<Topics> topicsList = topicsService.findAllTopics(0);
-		AppPageWrapper<Topics> pager = new AppPageWrapper<Topics>(topicsList);
+		Page<Posts> postsList = postsService.findAllPosts(0);
+		AppPageWrapper<Posts> pager = new AppPageWrapper<Posts>(postsList);
 		model.addAttribute("pager", pager);
 		return "common/shoulder_fragment";
 	}
