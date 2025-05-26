@@ -14,7 +14,7 @@ import lombok.extern.log4j.Log4j2;
 /**
  * ユーザー関連サービスクラス。
  *
- * @author tomo-sato
+ * @author chink
  */
 @Log4j2
 @Service
@@ -64,13 +64,17 @@ public class UsersService {
 	 */
 	public void save(RequestAccount requestAccount) {
 		Users users = new Users();
+		
 		users.setLoginId(requestAccount.getLoginId());
 		users.setPassword(requestAccount.getPassword());
 		users.setName(requestAccount.getName());
 		users.setEmailAddress(requestAccount.getEmailAddress());
+		users.setIconUri("/assets/img/profile-dummy.png");
+		users.setProfile("こんにちは");
+		
 		repository.save(users);
 	}
-
+	
 	/**
 	 * ユーザー登録処理を行う。
 	 *
