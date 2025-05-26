@@ -28,6 +28,7 @@ public class Comments extends EntityBase {
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	private Long ad;
 
 	/** ユーザーID */
 	@Column(name = "users_id", nullable = false)
