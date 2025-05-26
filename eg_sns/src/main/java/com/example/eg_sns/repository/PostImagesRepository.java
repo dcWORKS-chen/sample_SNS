@@ -6,14 +6,19 @@ import org.springframework.data.repository.CrudRepository;
 
 import com.example.eg_sns.entity.PostImages;
 
+/**
+ * 投稿画像関連リポジトリインターフェース。
+ *
+ * @author chink
+ */
 public interface PostImagesRepository extends CrudRepository<PostImages, Long> {
 
 	/**
-	 * ポスト検索を行う。
-	 * ポストIDを指定し、ポストを検索する。
+	 * 投稿画像検索を行う。
+	 * 投稿IDを指定し、投稿画像を検索する。
 	 *
-	 * @param id トピックID
-	 * @return トピック情報を返す。
+	 * @param id 投稿ID
+	 * @return 投稿画像の情報を返す。
 	 */
     List<PostImages> findByPostsId(Long postsId);
 

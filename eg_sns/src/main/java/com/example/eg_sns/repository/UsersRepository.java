@@ -10,7 +10,7 @@ import com.example.eg_sns.entity.Users;
 /**
  * ユーザー関連リポジトリインターフェース。
  *
- * @author tomo-sato
+ * @author chink
  */
 public interface UsersRepository extends PagingAndSortingRepository<Users, Long>, CrudRepository<Users, Long> {
 
@@ -33,6 +33,8 @@ public interface UsersRepository extends PagingAndSortingRepository<Users, Long>
 	 */
 	Users findByLoginIdAndPassword(String loginId, String password);
 	
+
+
 	/**
 	 * ユーザー検索を行う。
 	 * IDを指定し、それ以外のユーザーを検索する。

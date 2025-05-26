@@ -23,7 +23,7 @@ import lombok.extern.log4j.Log4j2;
 /**
  * ログインコントローラー。
  *
- * @author tomo-sato
+ * @author chink
  */
 @Log4j2
 @Controller
