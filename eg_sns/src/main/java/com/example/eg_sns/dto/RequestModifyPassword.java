@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class RequestChangePassword extends DtoBase{
+public class RequestModifyPassword extends DtoBase{
 	/** 現在のパスワード */
 	@NotBlank(message = "現在のパスワードを入力してください。")
 	@Size(max = 32, message = "現在のパスワードは最大32文字です。")
