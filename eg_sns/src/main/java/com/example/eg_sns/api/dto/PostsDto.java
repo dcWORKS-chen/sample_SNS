@@ -2,7 +2,10 @@ package com.example.eg_sns.api.dto;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import com.example.eg_sns.entity.PostImages;
 import com.example.eg_sns.entity.Posts;
 import com.example.eg_sns.entity.Users;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -45,6 +48,9 @@ public class PostsDto {
 	/** ユーザーアイコン */
 	private String userIconUri;
 	
+	/** 投稿画像URLリスト */
+	private List<String> postImagesUri;
+	
 	public String getFormatedCreated() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		this.formatedCreated = sdf.format(this.created);
@@ -64,11 +70,20 @@ public class PostsDto {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		this.formatedCreated = this.created != null ? sdf.format(this.created) : null;
 
+		// ユーザー情報
 		Users user = posts.getUsers();
 		if (user != null) {
 			this.userId = user.getId();
 			this.userName = user.getName();
 			this.userIconUri = user.getIconUri();
+		}
+		
+		// 投稿画像
+		List<PostImages> postImages = posts.getPostImagesList();
+		if (postImages != null && !postImages.isEmpty()) {
+			this.postImagesUri = postImages.stream()
+				.map(PostImages::getImageUrl)
+				.collect(Collectors.toList());
 		}
 	}
 	

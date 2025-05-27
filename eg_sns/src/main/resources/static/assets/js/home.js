@@ -9,8 +9,6 @@ function callWebAPI() {
 		.then(response => response.json())
 		.then(ret => {
 			// WebAPIからのレスポンスを処理
-
-
 			console.log("フロントが正常に取得しました。受け取ったレスポンス:", ret);
 			console.log("ページ情報:", ret.page_info);
 			console.log("投稿データ一覧:", ret.data);
@@ -30,6 +28,16 @@ function callWebAPI() {
 				clonedTemplate.style.display = "block";
 
 				// 投稿画像
+				let imageContainer = clonedTemplate.querySelector('#post-image');
+				imageContainer.innerHTML = '';
+				if (post.post_images_uri && post.post_images_uri.length > 0 && imageContainer) {
+					for (let imageUrl of post.post_images_uri) {
+						const img = document.createElement('img');
+						img.src = imageUrl;
+						img.className = "card-img-top"; // ← 任意：画像の表示スタイルを整える
+						imageContainer.appendChild(img);
+					}
+				}
 
 				// アイコン画像
 				clonedTemplate.querySelector('#post-usericon').src = post.user_icon_uri;
@@ -49,7 +57,6 @@ function callWebAPI() {
 
 				document.getElementById('post-tbody').appendChild(clonedTemplate);
 			}
-
 		})
 		.catch(error => {
 			console.error('Error fetching data:', error);
