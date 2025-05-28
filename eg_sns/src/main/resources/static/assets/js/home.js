@@ -34,7 +34,7 @@ function callWebAPI() {
 					for (let imageUrl of post.post_images_uri) {
 						const img = document.createElement('img');
 						img.src = imageUrl;
-						img.className = "card-img-top"; // ← 任意：画像の表示スタイルを整える
+						img.className = "card-img-top";
 						imageContainer.appendChild(img);
 					}
 				}
@@ -53,7 +53,69 @@ function callWebAPI() {
 				var bodyHtml = post.body.replace(/\n/g, '<br>');
 				clonedTemplate.querySelector('#post-body').innerHTML = bodyHtml;
 
+				// コメントフォームの action 属性を設定（必要に応じて）
+				var commentForm = clonedTemplate.querySelector('.comment-form');
+				commentForm.setAttribute('action', '/post/comment/regist/' + post.id);
 				// コメント表示
+				let commentContainer = clonedTemplate.querySelector('#post-comments');
+				commentContainer.innerHTML = '';
+
+				if (post.comments && post.comments.length > 0 && commentContainer) {
+					for (let comment of post.comments) {
+						const commentWrapper = document.createElement('div');
+						commentWrapper.classList.add('mb-3');
+
+						// コメント上部（画像・名前）
+						const topRow = document.createElement('div');
+						topRow.classList.add('d-flex', 'justify-content-between', 'align-items-center', 'mb-2');
+
+						const userInfo = document.createElement('div');
+						userInfo.classList.add('d-flex', 'align-items-center');
+
+						// プロフィール画像
+						const userImg = document.createElement('img');
+						userImg.src = comment.user_icon_uri;
+						userImg.alt = "Profile";
+						userImg.classList.add('rounded-circle', 'mt-2');
+						userImg.style.height = "80px";
+						userImg.style.width = "80px";
+						userImg.style.objectFit = "cover";
+
+						// ユーザー名リンク
+						const userLink = document.createElement('a');
+						userLink.href = `/view/${comment.user_id}`;
+						userLink.textContent = comment.user_name;
+						userLink.classList.add('ms-4', 'fw-bold');
+						userLink.style.marginTop = "-16px";
+
+						// 要素の組み立て（上部）
+						userInfo.appendChild(userImg);
+						userInfo.appendChild(userLink);
+						topRow.appendChild(userInfo);
+
+						// コメント本文
+						const commentBody = document.createElement('p');
+						commentBody.classList.add('mb-0');
+						commentBody.style.marginLeft = "82px";
+						commentBody.style.marginTop = "-46px";
+						commentBody.style.paddingLeft = "20px";
+
+						// 改行対応（<br>に変換）
+						const bodyLines = comment.body.split('\n');
+						bodyLines.forEach((line, index) => {
+							commentBody.appendChild(document.createTextNode(line));
+							if (index !== bodyLines.length - 1) {
+								commentBody.appendChild(document.createElement('br'));
+							}
+						});
+
+						// 全体を組み立て
+						commentWrapper.appendChild(topRow);
+						commentWrapper.appendChild(commentBody);
+						commentContainer.appendChild(commentWrapper);
+					}
+				}
+
 
 				document.getElementById('post-tbody').appendChild(clonedTemplate);
 			}

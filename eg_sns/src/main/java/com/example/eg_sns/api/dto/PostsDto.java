@@ -5,7 +5,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.example.eg_sns.entity.PostComments;
 import com.example.eg_sns.entity.PostImages;
+import com.example.eg_sns.entity.PostLikes;
 import com.example.eg_sns.entity.Posts;
 import com.example.eg_sns.entity.Users;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -51,6 +53,12 @@ public class PostsDto {
 	/** 投稿画像URLリスト */
 	private List<String> postImagesUri;
 	
+	/** 投稿コメントリスト */
+	private List<CommentsDto> comments;
+	
+	/** いいね数 */
+	private int likeCount;
+	
 	public String getFormatedCreated() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		this.formatedCreated = sdf.format(this.created);
@@ -84,6 +92,30 @@ public class PostsDto {
 			this.postImagesUri = postImages.stream()
 				.map(PostImages::getImageUrl)
 				.collect(Collectors.toList());
+		}
+		
+		// 投稿コメント
+		List<PostComments> postComments = posts.getPostCommentsList();
+		if (postComments != null && !postComments.isEmpty()) {
+			this.comments = postComments.stream().map(pc -> {
+				CommentsDto dto = new CommentsDto();
+				dto.setId(pc.getId());
+				dto.setBody(pc.getBody());
+
+				Users commentUser = pc.getUsers();
+				if (commentUser != null) {
+					dto.setUserId(commentUser.getId());
+					dto.setUserName(commentUser.getName());
+					dto.setUserIconUri(commentUser.getIconUri());
+				}
+
+				return dto;
+			}).collect(Collectors.toList());
+		}
+		
+		List<PostLikes> postLikes = posts.getPostLikesList();
+		if (postLikes != null) {
+			this.likeCount = postLikes.size();
 		}
 	}
 	

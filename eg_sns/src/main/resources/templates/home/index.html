@@ -132,9 +132,33 @@
 											日時
 										</div>
 									</div>
-
 									<h5 class="card-title" id="post-title">タイトル</h5>
 									<span id="post-body">本文</span>
+									<!-- Error Elements -->
+									<div th:if="${validationErrors != null}"
+										class="alert alert-danger alert-dismissible fade show" role="alert">
+										<div th:each="error : ${validationErrors.getAllErrors()}">
+											<i class="bi bi-exclamation-octagon me-1"></i>
+											<span th:text="${error.getDefaultMessage()}">エラーメッセージ</span>
+										</div>
+										<button type="button" class="btn-close" data-bs-dismiss="alert"
+											aria-label="Close"></button>
+									</div>
+									<!-- コメントフォーム -->
+									<form method="post" class="row g-3 comment-form mt-2">
+										<div class="col-md-12">
+											<textarea class="form-control" name="body"
+												placeholder="コメントを入力..."></textarea>
+										</div>
+										<div class="text-center">
+											<button type="submit" class="btn btn-primary">コメントする</button>
+										</div>
+									</form>
+
+									<!-- Comment List Elements -->
+									<div id="post-comments" class="mt-2"></div>
+
+
 								</div>
 
 
