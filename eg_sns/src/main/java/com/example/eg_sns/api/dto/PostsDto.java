@@ -59,6 +59,9 @@ public class PostsDto {
 	/** いいね数 */
 	private int likeCount;
 	
+	/** いいねしました？ */
+	private boolean liked;
+	
 	public String getFormatedCreated() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		this.formatedCreated = sdf.format(this.created);
@@ -66,7 +69,7 @@ public class PostsDto {
 	}
 	
 	// 手動マッピング
-	public PostsDto(Posts posts) {
+	public PostsDto(Posts posts, Long loginUserId) {
 		if (posts == null) return;
 
 		this.id = posts.getId();
@@ -116,6 +119,8 @@ public class PostsDto {
 		List<PostLikes> postLikes = posts.getPostLikesList();
 		if (postLikes != null) {
 			this.likeCount = postLikes.size();
+			this.liked = postLikes.stream()
+					.anyMatch(like -> like.getUsers().getId().equals(loginUserId));
 		}
 	}
 	

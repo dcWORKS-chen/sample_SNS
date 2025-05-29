@@ -1,9 +1,12 @@
 package com.example.eg_sns.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -207,28 +210,31 @@ public class PostController extends AppController{
 	}
 	
 	/**
-	 * [POST] いいねのトグル（追加または削除）アクション。
+	 * [POST] 非同期でいいねのトグル（追加または削除）アクション。
 	 *
 	 * @param postsId 投稿ID
 	 * @param redirectAttributes リダイレクト用の属性
 	 */
 	@PostMapping("/like/{postsId}")
-	public String toggleLike(@PathVariable Long postsId,
-	                         @RequestParam(name = "from", required = false, defaultValue = "home") String from,
-	                         RedirectAttributes redirectAttributes) {
+	public ResponseEntity<Map<String, Object>> toggleLike(@PathVariable Long postsId) {
 
-	    log.info("いいねトグル処理が呼ばれました。：postsId={}, from={}", postsId, from);
+		log.info("非同期いいねトグル処理：postsId={}", postsId);
 
 	    // ログインユーザーID取得
 	    Long usersId = getUsersId();
 
 	    // トグル実行（追加 or 削除）
 	    boolean isLiked = postLikesService.toggleLike(usersId, postsId);
+	    int likeCount = postLikesService.countLikes(postsId);
+	    
+	    Map<String, Object> response = new HashMap<>();
+        response.put("liked", isLiked);
+        response.put("likeCount", likeCount);
 
 	    log.info("いいねトグル完了：isLiked={}, postsId={}, usersId={}", isLiked, postsId, usersId);
+        return ResponseEntity.ok(response);
 
-	    redirectAttributes.addFlashAttribute("likeStatus", isLiked);
-	    return "redirect:/" + from;
+
 	}
 
 }

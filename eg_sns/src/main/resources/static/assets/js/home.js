@@ -116,6 +116,18 @@ function callWebAPI() {
 					}
 				}
 
+				// いいね
+				const likeButton = clonedTemplate.querySelector('.like-button');
+				likeButton.setAttribute('data-post-id', post.id);
+				likeButton.setAttribute('data-liked', post.liked);
+
+				const icon = likeButton.querySelector('i');
+				icon.className = "bi " + (post.liked ? "bi-hand-thumbs-up-fill" : "bi-hand-thumbs-up");
+
+				const likeCountSpan = likeButton.querySelector('.like-count');
+				likeCountSpan.textContent = post.like_count;
+
+
 
 				document.getElementById('post-tbody').appendChild(clonedTemplate);
 			}

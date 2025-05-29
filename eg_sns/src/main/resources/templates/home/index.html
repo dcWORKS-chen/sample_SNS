@@ -50,16 +50,15 @@
 													th:href="@{/posts/view/{id}(id=${post.users.id})}"
 													th:text="${post.users.name}">投稿者名</a>
 												<!-- この名前の横にいいねボタンを入れます -->
-												<form th:action="@{/post/like/{id}(id=${post.id})}" method="post"
-													style="display: inline;">
-													<input type="hidden" name="from" value="home" />
-													<button type="submit" class="btn btn-outline-primary btn-lg ms-4">
-														<i
-															th:classappend="${@postLikesService.isLiked(users.id, post.id)} ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'"></i>
-														<span
-															th:text="${@postLikesService.countLikes(post.id)}">0</span>
-													</button>
-												</form>
+												<button type="button"
+													class="btn btn-outline-primary btn-lg ms-4 like-button"
+													th:data-post-id="${post.id}"
+													th:data-liked="${@postLikesService.isLiked(users.id, post.id)}">
+													<i class="bi"
+														th:classappend="${@postLikesService.isLiked(users.id, post.id)} ? ' bi-hand-thumbs-up-fill' : ' bi-hand-thumbs-up'"></i>
+													<span class="like-count"
+														th:text="${@postLikesService.countLikes(post.id)}">0</span>
+												</button>
 											</div>
 											<div class="text-muted" style="font-size: 0.8rem;"
 												th:text="${#dates.format(post.created, 'yyyy-MM-dd HH:mm')}">
@@ -127,6 +126,13 @@
 												class="rounded-circle mt-2">
 											<a class="ms-2 fw-bold" id="post-username" href="#">ユーザー名</a>
 											<!-- この名前の横にいいねボタンを入れます -->
+											<button class="btn btn-outline-primary btn-lg ms-4 like-button"
+												data-post-id="" data-liked="">
+												<i class="bi"></i>
+												<span class="like-count">0</span>
+											</button>
+
+
 										</div>
 										<div class="text-muted" style="font-size: 0.8rem;" id="post-created">
 											日時
@@ -265,6 +271,8 @@
 	<!-- ======= Footer ======= -->
 	<div th:replace="~{common/shoulder_fragment::footer}"></div>
 	<script src="/assets/js/home.js"></script>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="/assets/js/postLike.js"></script>
 
 </body>
 

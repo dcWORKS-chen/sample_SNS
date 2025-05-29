@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.eg_sns.api.PostApiController.Response.PageInfo;
 import com.example.eg_sns.api.dto.PostsDto;
+import com.example.eg_sns.controller.AppController;
 import com.example.eg_sns.entity.Posts;
 import com.example.eg_sns.service.PostsService;
 import com.example.eg_sns.util.AppPageWrapper;
@@ -30,7 +31,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 @RestController
 @RequestMapping("/api")
-public class PostApiController {
+public class PostApiController extends AppController{
 	/** サービスクラス。 */
 	@Autowired
 	private PostsService postsService;
@@ -63,9 +64,11 @@ public class PostApiController {
 		pageInfo.setHasNext(pager.isHasNextPage());
 		pageInfo.setSinceId(retSinceId);
 
+		Long userId = getUsersId();
+		
 		// DTOにマッピング。
 		List<PostsDto> data = postsList.stream()
-				.map(PostsDto::new)
+				.map(post -> new PostsDto(post, userId))
 				.collect(Collectors.toList());
 		
 		response.setData(data);
