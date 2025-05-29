@@ -23,10 +23,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.example.eg_sns.core.annotation.LoginCheck;
 import com.example.eg_sns.dto.RequestPost;
 import com.example.eg_sns.dto.RequestPostComment;
+import com.example.eg_sns.entity.Users;
 import com.example.eg_sns.service.PostCommentsService;
 import com.example.eg_sns.service.PostLikesService;
 import com.example.eg_sns.service.PostsService;
 import com.example.eg_sns.service.StorageService;
+import com.example.eg_sns.service.UsersService;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -52,6 +54,9 @@ public class PostController extends AppController{
 	
 	@Autowired
 	private StorageService storageService;
+	
+	@Autowired
+	private UsersService usersService;
 	
 	/**
 	 * [GET]投稿作成入力フォームのアクション。
@@ -160,32 +165,27 @@ public class PostController extends AppController{
 	 * @param redirectAttributes リダイレクト時に使用するオブジェクト
 	 */
 	@PostMapping("/comment/regist/{postsId}")
-	public String commentRegist(@PathVariable Long postsId,
-			@Validated @ModelAttribute RequestPostComment requestPostComment,
-			BindingResult result,
-			@RequestParam(name = "from", required = false, defaultValue = "home") String from,
-			RedirectAttributes redirectAttributes) {
+	public ResponseEntity<Map<String, Object>> commentRegist(@PathVariable Long postsId,
+			@Validated @ModelAttribute RequestPostComment requestPostComment) {
 
-		log.info("コメント投稿処理のアクションが呼ばれました。：postsId={}, requestTopicComment={}, from={}", postsId, requestPostComment, from);
-
-		// バリデーション。
-		if (result.hasErrors()) {
-			log.warn("バリデーションエラーが発生しました。：postsId={}, requestTopicComment={}, result={}", postsId, requestPostComment, result);
-
-			redirectAttributes.addFlashAttribute("validationErrors", result);
-			redirectAttributes.addFlashAttribute("requestTopicComment", requestPostComment);
-
-			// 入力画面へリダイレクト。
-			return "redirect:/" + from;
-		}
+		log.info("コメント投稿処理のアクションが呼ばれました。：postsId={}, requestTopicComment={}", postsId, requestPostComment);
 
 		// ログインユーザー情報取得
 		Long usersId = getUsersId();
+		Users user = usersService.findById(usersId);
 
 		// コメント登録処理
 		postCommentsService.save(requestPostComment, usersId, postsId);
 
-		return "redirect:/" + from;
+		Map<String, Object> response = new HashMap<>();
+	    response.put("usersId", usersId);
+	    response.put("userName", user.getName());
+	    response.put("iconUri", user.getIconUri());
+	    response.put("comment", requestPostComment);
+
+		log.info("コメント投稿処理完了。：postsId={}, requestTopicComment={}", postsId, requestPostComment);
+		
+        return ResponseEntity.ok(response);
 	}
 
 	/**

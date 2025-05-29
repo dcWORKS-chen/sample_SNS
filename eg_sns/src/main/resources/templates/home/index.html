@@ -79,36 +79,40 @@
 										</div>
 										<!-- End Error Elements -->
 										<!-- Comment Form Elements -->
-										<form method="post" th:action="@{/post/comment/regist/{id}(id=${post.id})}"
-											th:object="${requestPostComment}" class="row g-3 mt-2">
-											<div class="col-md-12">
-												<textarea class="form-control" th:field="*{body}"
-													placeholder="コメントを入力..."></textarea>
-											</div>
-											<input type="hidden" name="from" value="home" />
-											<div class="text-center">
-												<button type="submit" class="btn btn-primary">コメントする</button>
-											</div>
-										</form>
-										<!-- End Comment Form Elements -->
-										<!-- Comment List Elements -->
-										<div th:each="postComment : ${post.postCommentsList}">
-											<div class="d-flex justify-content-between align-items-center mb-2">
-												<div class="d-flex align-items-center">
-													<img th:src="${postComment.users.iconUri}" alt="Profile"
-														class="rounded-circle mt-2"
-														style="height: 80px; width: 80px; object-fit: cover;">
-													<a class="ms-4 fw-bold " style="margin-top: -16px;"
-														th:href="@{/profile/view/{id}(id=${postComment.users.id})}"
-														th:text="${postComment.users.name}">コメント者名</a>
+										<div class="post" th:attr="data-post-id=${post.id}">
+											<!-- Comment Form -->
+											<div class="row g-3 mt-2">
+												<div class="col-md-12">
+													<textarea class="form-control comment-input" name="body"
+														placeholder="コメントを入力..."></textarea>
+												</div>
+												<div class="text-center">
+													<button type="button"
+														class="btn btn-primary comment-submit">コメントする</button>
 												</div>
 											</div>
-											<!-- コメント本文 -->
-											<p class="mb-0"
-												style="margin-left: 82px; margin-top: -46px; padding-left: 20px;"
-												th:utext="${@stringUtil.nl2br(postComment.body)}">
-												コメント本文</p>
+
+											<!-- Comment List -->
+											<div class="comment-list mt-4">
+												<div th:each="postComment : ${post.postCommentsList}">
+													<div class="d-flex justify-content-between align-items-center mb-4">
+														<div class="d-flex align-items-center">
+															<img th:src="${postComment.users.iconUri}" alt="Profile"
+																class="rounded-circle mt-2"
+																style="height: 80px; width: 80px; object-fit: cover;">
+															<a class="ms-4 fw-bold " style="margin-top: -16px;"
+																th:href="@{/profile/view/{id}(id=${postComment.users.id})}"
+																th:text="${postComment.users.name}">コメント者名</a>
+														</div>
+													</div>
+													<p class="mb-0"
+														style="margin-left: 82px; margin-top: -46px; padding-left: 20px;"
+														th:utext="${@stringUtil.nl2br(postComment.body)}">コメント本文</p>
+												</div>
+											</div>
 										</div>
+
+
 									</div>
 								</div>
 							</div>
@@ -273,6 +277,8 @@
 	<script src="/assets/js/home.js"></script>
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="/assets/js/postLike.js"></script>
+	<script src="/assets/js/postComment.js"></script>
+
 
 </body>
 
