@@ -28,7 +28,7 @@ function callWebAPI() {
 				clonedTemplate.style.display = "block";
 
 				// 投稿画像
-				let imageContainer = clonedTemplate.querySelector('#post-image');
+				const imageContainer = clonedTemplate.querySelector('#post-image');
 				imageContainer.innerHTML = '';
 				if (post.post_images_uri && post.post_images_uri.length > 0 && imageContainer) {
 					for (let imageUrl of post.post_images_uri) {
@@ -42,7 +42,7 @@ function callWebAPI() {
 				// アイコン画像
 				clonedTemplate.querySelector('#post-usericon').src = post.user_icon_uri;
 				// ユーザー名・プロフィールリンク
-				var usernameElem = clonedTemplate.querySelector('#post-username');
+				const usernameElem = clonedTemplate.querySelector('#post-username');
 				usernameElem.textContent = post.user_name;
 				usernameElem.href = '/view/' + post.user_id;
 				// 投稿日時
@@ -50,14 +50,14 @@ function callWebAPI() {
 				// タイトル
 				clonedTemplate.querySelector('#post-title').textContent = post.title;
 				// 本文（改行を<br>に）
-				var bodyHtml = post.body.replace(/\n/g, '<br>');
+				const bodyHtml = post.body.replace(/\n/g, '<br>');
 				clonedTemplate.querySelector('#post-body').innerHTML = bodyHtml;
 
 				// コメントフォームの action 属性を設定（必要に応じて）
-				var commentForm = clonedTemplate.querySelector('.comment-form');
+				const commentForm = clonedTemplate.querySelector('.comment-form');
 				commentForm.setAttribute('action', '/post/comment/regist/' + post.id);
 				// コメント表示
-				let commentContainer = clonedTemplate.querySelector('#post-comments');
+				const commentContainer = clonedTemplate.querySelector('#post-comments');
 				commentContainer.innerHTML = '';
 
 				if (post.comments && post.comments.length > 0 && commentContainer) {

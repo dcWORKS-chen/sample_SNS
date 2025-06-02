@@ -67,23 +67,11 @@ public class FriendController {
 			if (myRequestOpt.isPresent()) {
 				Friends myRequest = myRequestOpt.get();
 				dto.setRequestId(myRequest.getId());
-				if (myRequest.getApprovalStatus() == 0) {
-					dto.setApprovalStatus(0); // 自分が申請 → 申請中
-				} else if (myRequest.getApprovalStatus() == 1) {
-					dto.setApprovalStatus(1); // 承認済み
-				} else {
-					dto.setApprovalStatus(4); // 却下されたが履歴がある（任意）
-				}
+				dto.setApprovalStatus(getApprovalStatusForMyRequest(myRequest.getApprovalStatus()));
 			} else if (theirRequestOpt.isPresent()) {
 				Friends theirRequest = theirRequestOpt.get();
 				dto.setRequestId(theirRequest.getId());
-				if (theirRequest.getApprovalStatus() == 0) {
-					dto.setApprovalStatus(2); // 相手から申請あり → 承認/却下可能
-				} else if (theirRequest.getApprovalStatus() == 1) {
-					dto.setApprovalStatus(1); // 承認済み（逆向き）
-				} else {
-					dto.setApprovalStatus(4); // 却下されたが履歴がある
-				}
+				dto.setApprovalStatus(getApprovalStatusForTheirRequest(theirRequest.getApprovalStatus()));
 			} else {
 				dto.setApprovalStatus(3); // 申請可能
 			}
@@ -110,19 +98,19 @@ public class FriendController {
 		log.info("フレンドリクエスト送信のアクションが呼ばれました：from={}, to={}", usersId, friendUsersId);
 
 		// フレンドリクエストを送信
-	    boolean isSuccess = friendsService.sendFriendRequest(usersId, friendUsersId);
-	    
-	    // 成功した場合、リダイレクトで元のページに戻る
-	    if (isSuccess) {
-	        redirectAttributes.addFlashAttribute("isSuccess", "true");
-	    } else {
-	        redirectAttributes.addFlashAttribute("isSuccess", "false");
-	    }
+		boolean isSuccess = friendsService.sendFriendRequest(usersId, friendUsersId);
 
-	    String referer = request.getHeader("Referer");
-	    if (referer != null && !referer.isEmpty()) {
-	        return "redirect:" + referer;
-	    }
+		// 成功した場合、リダイレクトで元のページに戻る
+		if (isSuccess) {
+			redirectAttributes.addFlashAttribute("isSuccess", "true");
+		} else {
+			redirectAttributes.addFlashAttribute("isSuccess", "false");
+		}
+
+		String referer = request.getHeader("Referer");
+		if (referer != null && !referer.isEmpty()) {
+			return "redirect:" + referer;
+		}
 
 		return "redirect:/friend/list/" + usersId;
 	}
@@ -141,12 +129,11 @@ public class FriendController {
 
 		// フレンドリクエストを承認
 		friendsService.approveFriendRequest(requestId);
-		
-	    String referer = request.getHeader("Referer");
-	    if (referer != null && !referer.isEmpty()) {
-	        return "redirect:" + referer;
-	    }
 
+		String referer = request.getHeader("Referer");
+		if (referer != null && !referer.isEmpty()) {
+			return "redirect:" + referer;
+		}
 
 		redirectAttributes.addFlashAttribute("isSuccess", "true");
 		return "redirect:/friend/list/" + usersId;
@@ -166,16 +153,16 @@ public class FriendController {
 
 		// フレンドリクエストを拒否または削除
 		friendsService.rejectFriendRequest(requestId);
-		
-	    String referer = request.getHeader("Referer");
-	    if (referer != null && !referer.isEmpty()) {
-	        return "redirect:" + referer;
-	    }
+
+		String referer = request.getHeader("Referer");
+		if (referer != null && !referer.isEmpty()) {
+			return "redirect:" + referer;
+		}
 
 		redirectAttributes.addFlashAttribute("isSuccess", "true");
 		return "redirect:/friend/list/" + usersId;
 	}
-	
+
 	/**
 	 * [POST]フレンド解除アクション。
 	 *
@@ -198,5 +185,33 @@ public class FriendController {
 		}
 
 		return "redirect:/friend/list/" + usersId;
+	}
+
+	/**
+	 * 自分のフレンド申請状態チェック
+	 *
+	 * @param status IDからフレンド申請状態
+	 * @return フレンド申請の状態
+	 */
+	private int getApprovalStatusForMyRequest(int status) {
+		return switch (status) {
+		case 0 -> 0; // 自分が申請 → 申請中
+		case 1 -> 1; // 承認済み
+		default -> 4; // 却下されたが履歴がある
+		};
+	}
+
+	/**
+	 * 相手からのフレンド申請状態チェック
+	 *
+	 * @param status IDからフレンド申請状態
+	 * @return フレンド申請の状態
+	 */
+	private int getApprovalStatusForTheirRequest(int status) {
+		return switch (status) {
+		case 0 -> 2; // 相手から申請あり → 承認/却下可能
+		case 1 -> 1; // 承認済み
+		default -> 4; // 却下されたが履歴がある
+		};
 	}
 }
